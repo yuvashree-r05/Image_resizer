@@ -325,6 +325,53 @@ This prevents unnecessary temporary files from remaining on the server.
 
 ---
 
+# Nginx Reverse Proxy
+
+Nginx was configured locally as a reverse proxy in front of the Express server.
+
+The Express application runs on port 5000, while Nginx listens on port 80 and forwards incoming requests to the Express server.
+
+Request Flow
+Client
+   │
+   │ http://localhost/
+   ▼
+Nginx
+   │
+   │ proxy_pass
+   ▼
+Express Server
+   │
+   │ http://localhost:5000
+   ▼
+Image Resizer API
+
+Without Nginx, the API can be accessed directly through:
+
+http://localhost:5000
+
+With Nginx configured as a reverse proxy, requests can be made through:
+
+http://localhost
+Nginx Configuration
+
+The reverse proxy was configured using:
+
+server {
+    listen 80;
+    server_name localhost;
+
+    location / {
+        proxy_pass http://localhost:5000;
+    }
+}
+
+The configuration was verified using:
+
+nginx -t
+
+Nginx was also tested by stopping the Express server and observing the 502 Bad Gateway response, then restarting Express and confirming that requests worked again.
+
 # Testing
 
 The API was tested using Bruno.
@@ -341,8 +388,10 @@ The following functionality was tested:
 - Invalid dimensions
 - Unsupported file types
 - File size validation
+- Ngnix reverse proxy
 - Processed image retrieval
 - Temporary file cleanup
+- Render deployment
 
 ---
 
@@ -445,7 +494,6 @@ Possible future improvements include:
 - Swagger/OpenAPI documentation
 - Batch image processing
 - Frontend interface
-- Nginx reverse proxy
 - Docker containerization
 - Cloud deployment
 
